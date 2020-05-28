@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -34,6 +35,20 @@ namespace RoslynMetadata.LocalConsole.Extensions
             }
             return !valids.Any(v => !v.Success);
         }
+
+        public static string DisplayName(this object obj, string propertyName)
+        {
+            return obj.GetType().GetProperty(propertyName)?
+                .DisplayName();
+
+        }
+
+        public static string DisplayName(this PropertyInfo property)
+        {
+            DisplayNameAttribute displayName = property.GetCustomAttribute<DisplayNameAttribute>();
+            return displayName != null ? displayName.DisplayName : property.Name;
+        }
+
 
         private static ValidResult ExecuteRule(this Assembly asm, string name, Customer customer)
         {
@@ -81,7 +96,8 @@ namespace RoslynMetadata.LocalConsole.Extensions
 
             foreach (var rule in customerRules)
             {
-                codeSource.Add(CSharpSyntaxTree.ParseText(TemplateCodeSyntaxFactory(rule.Key, rule.Value)));
+                // Change TemplateCodeSyntaxFactory to Script
+                codeSource.Add(CSharpSyntaxTree.ParseText(TemplateCode(rule.Key, rule.Value)));
             }
 
             CSharpCompilation compilation = CSharpCompilation.Create(
@@ -122,7 +138,8 @@ namespace RoslynMetadata.LocalConsole.Extensions
                 SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System")),
                 SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System.Text.RegularExpressions")),
                 SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("RoslynMetadata.LocalConsole")),
-                SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System.Linq"))
+                SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System.Linq")),
+                SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("RoslynMetadata.LocalConsole.Extensions"))
                 );
 
             var nameSpace = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName("CustomerValidations"));
@@ -152,6 +169,7 @@ namespace RoslynMetadata.LocalConsole.Extensions
                       using RoslynMetadata.LocalConsole;
                       using System.Text.RegularExpressions;
                       using System.Linq;
+                      using RoslynMetadata.LocalConsole.Extensions;
 
                      namespace CustomerValidations
                      { 

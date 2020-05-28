@@ -8,7 +8,6 @@ namespace RoslynMetadata.LocalConsole
     {
         static void Main(string[] args)
         {
-  
             string command = "";
             string createForm = "";
             Customer customer = null;
@@ -19,7 +18,6 @@ namespace RoslynMetadata.LocalConsole
                 if (createForm == "s" || customer == null)
                 {
                     customer = CreateForm<Customer>();
-                    createForm = "";
                 }
 
                 if (customer.ValidCustomer())
@@ -27,6 +25,10 @@ namespace RoslynMetadata.LocalConsole
 
                 Console.WriteLine("Presione x para salir");
                 command = Console.ReadLine();
+
+                if (command.ToLower() == "x")
+                    break;
+
                 Console.WriteLine("¿(s)Desea generar un nuevo cliente o (n)seguir validando el mismo?");
                 createForm = Console.ReadLine();
 
@@ -42,7 +44,7 @@ namespace RoslynMetadata.LocalConsole
                 .ToList()
                 .ForEach(p =>
                 {
-                    Console.WriteLine(p.Name);
+                    Console.WriteLine(p.DisplayName());
                     if(p.PropertyType != typeof(string))
                     {
                         p.SetValue(record, Convert.ChangeType(Console.ReadLine(), p.PropertyType));
