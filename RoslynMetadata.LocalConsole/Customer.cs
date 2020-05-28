@@ -12,7 +12,7 @@ namespace RoslynMetadata.LocalConsole
         [DisplayName("Fecha Nacimiento")]
         public DateTime BirthDate { get; set; }
 
-        //[DisplayName("Crédito Máximo")]
+        [DisplayName("Crédito Máximo")]
         public Decimal MaxLoan { get; set; }
 
         [DisplayName("Ciudad")]
