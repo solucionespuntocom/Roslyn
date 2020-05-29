@@ -46,13 +46,9 @@ namespace RoslynMetadata.LocalConsole
                 {
                     Console.WriteLine(p.DisplayName());
                     if(p.PropertyType != typeof(string))
-                    {
                         p.SetValue(record, Convert.ChangeType(Console.ReadLine(), p.PropertyType));
-                    }
                     else
-                    {
                         p.SetValue(record, Console.ReadLine());
-                    }
                 });
 
             return record;

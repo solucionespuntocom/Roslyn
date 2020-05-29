@@ -97,7 +97,9 @@ namespace RoslynMetadata.LocalConsole.Extensions
             foreach (var rule in customerRules)
             {
                 // Change TemplateCodeSyntaxFactory to Script
-                codeSource.Add(CSharpSyntaxTree.ParseText(TemplateCode(rule.Key, rule.Value)));
+                codeSource.Add(
+                    SyntaxFactory.SyntaxTree(CSharpSyntaxTree.ParseText(TemplateCode(rule.Key, rule.Value))
+                        .GetRoot().NormalizeWhitespace()));
             }
 
             CSharpCompilation compilation = CSharpCompilation.Create(
@@ -152,10 +154,12 @@ namespace RoslynMetadata.LocalConsole.Extensions
                     .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
                     .AddParameterListParameters(SyntaxFactory.Parameter(SyntaxFactory.Identifier("customer"))
                         .WithType(SyntaxFactory.ParseTypeName("Customer")))
-                    .WithBody(SyntaxFactory.Block(SyntaxFactory.ParseStatement(body).NormalizeWhitespace()));
+                    .WithBody(SyntaxFactory.Block(body.Split(
+                        new string[] { "\r\n", "\n" }, StringSplitOptions.None)
+                        .Select(line => SyntaxFactory.ParseStatement($"{line}"))));
 
             @class = @class.AddMembers(method);
-            nameSpace = nameSpace.AddMembers(@class);
+            nameSpace = nameSpace.AddMembers(@class.NormalizeWhitespace());
             unitCompiler = unitCompiler.AddMembers(nameSpace);
 
             return unitCompiler
